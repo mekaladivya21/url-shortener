@@ -1,5 +1,6 @@
 package com.divya.url_shortener.controller;
 
+import com.divya.url_shortener.dto.AnalyticsResponse;
 import com.divya.url_shortener.dto.CreateUrlRequest;
 import com.divya.url_shortener.dto.UrlResponse;
 import com.divya.url_shortener.service.UrlService;
@@ -31,5 +32,15 @@ public class UrlController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
+    }
+    @GetMapping("/{shortCode}/analytics")
+    public ResponseEntity<AnalyticsResponse> getAnalytics(
+            @PathVariable String shortCode
+    ) {
+
+        AnalyticsResponse response =
+                urlService.getAnalytics(shortCode);
+
+        return ResponseEntity.ok(response);
     }
 }

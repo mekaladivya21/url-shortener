@@ -1,12 +1,14 @@
 package com.divya.url_shortener.service;
 
+import com.divya.url_shortener.dto.AnalyticsResponse;
 import com.divya.url_shortener.dto.CreateUrlRequest;
 import com.divya.url_shortener.dto.UrlResponse;
 import com.divya.url_shortener.entity.Url;
 import com.divya.url_shortener.repository.UrlRepository;
 import com.divya.url_shortener.exception.UrlExpiredException;
 import com.divya.url_shortener.exception.UrlNotFoundException;
-
+import com.divya.url_shortener.entity.ClickEvent;
+import com.divya.url_shortener.repository.ClickEventRepository;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +20,15 @@ public class UrlService {
 
     private final UrlRepository urlRepository;
 
-    public UrlService(UrlRepository urlRepository) {
+    private final ClickEventRepository clickEventRepository;
+
+
+    public UrlService(
+            UrlRepository urlRepository,
+            ClickEventRepository clickEventRepository
+    ) {
         this.urlRepository = urlRepository;
+        this.clickEventRepository = clickEventRepository;
     }
 
     @Transactional
@@ -71,6 +80,44 @@ public class UrlService {
         }
 
         return url;
+    }
+    @Transactional
+    public void recordClick(
+            Long urlId,
+            String userAgent
+    ) {
+
+        ClickEvent clickEvent = new ClickEvent();
+
+        clickEvent.setUrlId(urlId);
+        clickEvent.setUserAgent(userAgent);
+
+        clickEventRepository.save(clickEvent);
+    }
+
+    @Transactional(readOnly = true)
+    public AnalyticsResponse getAnalytics(
+            String shortCode
+    ) {
+
+        Url url = urlRepository
+                .findByShortCode(shortCode)
+                .orElseThrow(() ->
+                        new UrlNotFoundException(
+                                "Short URL not found"
+                        )
+                );
+
+        long totalClicks =
+                clickEventRepository.countByUrlId(
+                        url.getId()
+                );
+
+        return new AnalyticsResponse(
+                url.getShortCode(),
+                url.getOriginalUrl(),
+                totalClicks
+        );
     }
 
 

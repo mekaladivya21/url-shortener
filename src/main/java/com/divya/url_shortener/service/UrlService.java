@@ -31,6 +31,7 @@ public class UrlService {
 
         url.setOriginalUrl(request.getOriginalUrl());
         url.setShortCode(shortCode);
+        url.setExpiresAt(request.getExpiresAt());
         url.setActive(true);
 
         Url savedUrl = urlRepository.save(url);
@@ -42,7 +43,8 @@ public class UrlService {
         return new UrlResponse(
                 savedUrl.getOriginalUrl(),
                 savedUrl.getShortCode(),
-                shortUrl
+                shortUrl,
+                savedUrl.getExpiresAt()
         );
     }
     @Transactional(readOnly = true)
@@ -63,7 +65,7 @@ public class UrlService {
         }
 
         if (url.getExpiresAt() != null &&
-                url.getExpiresAt().isBefore(LocalDateTime.now())) {
+                !url.getExpiresAt().isAfter(LocalDateTime.now())) {
 
             throw new UrlExpiredException(
                     "Short URL has expired"

@@ -9,6 +9,7 @@ import com.divya.url_shortener.exception.UrlExpiredException;
 import com.divya.url_shortener.exception.UrlNotFoundException;
 import com.divya.url_shortener.entity.ClickEvent;
 import com.divya.url_shortener.repository.ClickEventRepository;
+
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,8 +21,8 @@ public class UrlService {
 
     private final UrlRepository urlRepository;
 
-    private final ClickEventRepository clickEventRepository;
 
+    private final ClickEventRepository clickEventRepository;
 
     public UrlService(
             UrlRepository urlRepository,
@@ -40,6 +41,7 @@ public class UrlService {
 
         url.setOriginalUrl(request.getOriginalUrl());
         url.setShortCode(shortCode);
+        url.setExpiresAt(request.getExpiresAt());
         url.setActive(true);
 
         Url savedUrl = urlRepository.save(url);
@@ -51,35 +53,9 @@ public class UrlService {
         return new UrlResponse(
                 savedUrl.getOriginalUrl(),
                 savedUrl.getShortCode(),
-                shortUrl
+                shortUrl,
+                savedUrl.getExpiresAt()
         );
-    }
-    @Transactional(readOnly = true)
-    public Url getOriginalUrl(String shortCode) {
-
-        Url url = urlRepository
-                .findByShortCode(shortCode)
-                .orElseThrow(() ->
-                        new UrlNotFoundException(
-                                "Short URL not found"
-                        )
-                );
-
-        if (!url.isActive()) {
-            throw new UrlNotFoundException(
-                    "Short URL is inactive"
-            );
-        }
-
-        if (url.getExpiresAt() != null &&
-                url.getExpiresAt().isBefore(LocalDateTime.now())) {
-
-            throw new UrlExpiredException(
-                    "Short URL has expired"
-            );
-        }
-
-        return url;
     }
     @Transactional
     public void recordClick(
@@ -94,7 +70,6 @@ public class UrlService {
 
         clickEventRepository.save(clickEvent);
     }
-
     @Transactional(readOnly = true)
     public AnalyticsResponse getAnalytics(
             String shortCode
@@ -118,6 +93,33 @@ public class UrlService {
                 url.getOriginalUrl(),
                 totalClicks
         );
+    }
+    @Transactional(readOnly = true)
+    public Url getOriginalUrl(String shortCode) {
+
+        Url url = urlRepository
+                .findByShortCode(shortCode)
+                .orElseThrow(() ->
+                        new UrlNotFoundException(
+                                "Short URL not found"
+                        )
+                );
+
+        if (!url.isActive()) {
+            throw new UrlNotFoundException(
+                    "Short URL is inactive"
+            );
+        }
+
+        if (url.getExpiresAt() != null &&
+                !url.getExpiresAt().isAfter(LocalDateTime.now())) {
+
+            throw new UrlExpiredException(
+                    "Short URL has expired"
+            );
+        }
+
+        return url;
     }
 
 

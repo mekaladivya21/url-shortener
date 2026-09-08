@@ -45,6 +45,7 @@ public class UrlService {
                 shortUrl
         );
     }
+
     @Transactional(readOnly = true)
     public Url getOriginalUrl(String shortCode) {
 

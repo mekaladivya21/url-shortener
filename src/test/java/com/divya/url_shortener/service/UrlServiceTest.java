@@ -4,6 +4,7 @@ import com.divya.url_shortener.dto.CreateUrlRequest;
 import com.divya.url_shortener.dto.UrlResponse;
 import com.divya.url_shortener.entity.Url;
 //import com.divya.url_shortener.repository.ClickEventRepository;
+import com.divya.url_shortener.repository.ClickEventRepository;
 import com.divya.url_shortener.repository.UrlRepository;
 import com.divya.url_shortener.exception.UrlExpiredException;
 import com.divya.url_shortener.exception.UrlNotFoundException;
@@ -29,8 +30,8 @@ class UrlServiceTest {
     @Mock
     private UrlRepository urlRepository;
 
-//    @Mock
-//    private ClickEventRepository clickEventRepository;
+    @Mock
+  private ClickEventRepository clickEventRepository;
 
     @InjectMocks
     private UrlService urlService;
@@ -139,6 +140,41 @@ class UrlServiceTest {
                 UrlExpiredException.class,
                 () -> urlService.getOriginalUrl("expired123")
         );
+    }
+    @Test
+    void shouldReturnCorrectAnalytics() {
+
+        Url url = new Url();
+
+        url.setId(1L);
+
+        url.setOriginalUrl(
+                "https://www.google.com"
+        );
+
+        url.setShortCode("abc12345");
+
+        when(urlRepository.findByShortCode("abc12345"))
+                .thenReturn(Optional.of(url));
+
+        when(clickEventRepository.countByUrlId(1L))
+                .thenReturn(10L);
+
+        var response =
+                urlService.getAnalytics("abc12345");
+
+        assertEquals(
+                10L,
+                response.getTotalClicks()
+        );
+
+        assertEquals(
+                "abc12345",
+                response.getShortCode()
+        );
+
+        verify(clickEventRepository)
+                .countByUrlId(1L);
     }
     @Test
     void shouldReturnUrlWhenUrlIsValid() {

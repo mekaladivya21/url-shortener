@@ -4,7 +4,10 @@ import com.divya.url_shortener.dto.CreateUrlRequest;
 import com.divya.url_shortener.dto.UrlResponse;
 import com.divya.url_shortener.entity.Url;
 import com.divya.url_shortener.repository.UrlRepository;
+import com.divya.url_shortener.exception.UrlExpiredException;
+import com.divya.url_shortener.exception.UrlNotFoundException;
 
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,6 +44,33 @@ public class UrlService {
                 savedUrl.getShortCode(),
                 shortUrl
         );
+    }
+    @Transactional(readOnly = true)
+    public Url getOriginalUrl(String shortCode) {
+
+        Url url = urlRepository
+                .findByShortCode(shortCode)
+                .orElseThrow(() ->
+                        new UrlNotFoundException(
+                                "Short URL not found"
+                        )
+                );
+
+        if (!url.isActive()) {
+            throw new UrlNotFoundException(
+                    "Short URL is inactive"
+            );
+        }
+
+        if (url.getExpiresAt() != null &&
+                url.getExpiresAt().isBefore(LocalDateTime.now())) {
+
+            throw new UrlExpiredException(
+                    "Short URL has expired"
+            );
+        }
+
+        return url;
     }
 
 

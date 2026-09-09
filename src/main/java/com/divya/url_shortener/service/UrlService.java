@@ -9,6 +9,10 @@ import com.divya.url_shortener.exception.UrlExpiredException;
 import com.divya.url_shortener.exception.UrlNotFoundException;
 import com.divya.url_shortener.entity.ClickEvent;
 import com.divya.url_shortener.repository.ClickEventRepository;
+import com.divya.url_shortener.exception.InvalidUrlException;
+
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
@@ -35,6 +39,7 @@ public class UrlService {
     @Transactional
     public UrlResponse createShortUrl(CreateUrlRequest request) {
 
+        validateOriginalUrl(request.getOriginalUrl());
         String shortCode = generateUniqueShortCode();
 
         Url url = new Url();
@@ -137,5 +142,36 @@ public class UrlService {
         } while (urlRepository.existsByShortCode(shortCode));
 
         return shortCode;
+    }
+    private void validateOriginalUrl(String originalUrl) {
+
+        try {
+
+            URI uri = new URI(originalUrl);
+
+            String scheme = uri.getScheme();
+
+            if (scheme == null ||
+                    (!scheme.equalsIgnoreCase("http")
+                            && !scheme.equalsIgnoreCase("https"))) {
+
+                throw new InvalidUrlException(
+                        "Only HTTP and HTTPS URLs are allowed"
+                );
+            }
+
+            if (uri.getHost() == null) {
+
+                throw new InvalidUrlException(
+                        "URL must contain a valid host"
+                );
+            }
+
+        } catch (URISyntaxException exception) {
+
+            throw new InvalidUrlException(
+                    "Invalid URL format"
+            );
+        }
     }
 }

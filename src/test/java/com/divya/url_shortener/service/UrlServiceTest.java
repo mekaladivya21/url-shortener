@@ -4,6 +4,7 @@ import com.divya.url_shortener.dto.CreateUrlRequest;
 import com.divya.url_shortener.dto.UrlResponse;
 import com.divya.url_shortener.entity.Url;
 //import com.divya.url_shortener.repository.ClickEventRepository;
+import com.divya.url_shortener.exception.InvalidUrlException;
 import com.divya.url_shortener.repository.ClickEventRepository;
 import com.divya.url_shortener.repository.UrlRepository;
 import com.divya.url_shortener.exception.UrlExpiredException;
@@ -207,6 +208,43 @@ class UrlServiceTest {
         assertEquals(
                 "valid123",
                 result.getShortCode()
+        );
+    }
+
+    @Test
+    void shouldRejectFtpUrl() {
+
+        CreateUrlRequest request =
+                new CreateUrlRequest();
+
+        request.setOriginalUrl(
+                "ftp://example.com"
+        );
+
+        assertThrows(
+                InvalidUrlException.class,
+                () -> urlService.createShortUrl(request)
+        );
+
+        verify(
+                urlRepository,
+                never()
+        ).save(any());
+    }
+
+    @Test
+    void shouldRejectFileUrl() {
+
+        CreateUrlRequest request =
+                new CreateUrlRequest();
+
+        request.setOriginalUrl(
+                "file:///etc/passwd"
+        );
+
+        assertThrows(
+                InvalidUrlException.class,
+                () -> urlService.createShortUrl(request)
         );
     }
 

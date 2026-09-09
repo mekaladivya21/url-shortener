@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
@@ -23,10 +24,19 @@ public class RedirectController {
 
     @GetMapping("/{shortCode}")
     public ResponseEntity<Void> redirect(
-            @PathVariable String shortCode
+            @PathVariable String shortCode,
+            @RequestHeader(
+                    value = "User-Agent",
+                    required = false
+            ) String userAgent
     ) {
 
         Url url = urlService.getOriginalUrl(shortCode);
+
+        urlService.recordClick(
+                url.getId(),
+                userAgent
+        );
 
         return ResponseEntity
                 .status(HttpStatus.FOUND)

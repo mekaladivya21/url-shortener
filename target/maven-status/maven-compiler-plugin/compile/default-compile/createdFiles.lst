@@ -5,8 +5,11 @@ com\divya\url_shortener\exception\UrlExpiredException.class
 com\divya\url_shortener\UrlShortenerApplication.class
 com\divya\url_shortener\dto\ErrorResponse.class
 com\divya\url_shortener\dto\UrlResponse.class
+com\divya\url_shortener\entity\ClickEvent.class
 com\divya\url_shortener\controller\UrlController.class
 com\divya\url_shortener\exception\UrlNotFoundException.class
 com\divya\url_shortener\entity\Url.class
+com\divya\url_shortener\dto\AnalyticsResponse.class
 com\divya\url_shortener\dto\CreateUrlRequest.class
 com\divya\url_shortener\controller\RedirectController.class
+com\divya\url_shortener\repository\ClickEventRepository.class

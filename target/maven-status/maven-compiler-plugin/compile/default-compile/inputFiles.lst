@@ -1,12 +1,15 @@
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\controller\RedirectController.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\controller\UrlController.java
+C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\dto\AnalyticsResponse.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\dto\CreateUrlRequest.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\dto\ErrorResponse.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\dto\UrlResponse.java
+C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\entity\ClickEvent.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\entity\Url.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\exception\GlobalExceptionHandler.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\exception\UrlExpiredException.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\exception\UrlNotFoundException.java
+C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\repository\ClickEventRepository.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\repository\UrlRepository.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\service\UrlService.java
 C:\Users\mekal\IdeaProjects\url-shortener\src\main\java\com\divya\url_shortener\UrlShortenerApplication.java

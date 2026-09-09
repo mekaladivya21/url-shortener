@@ -1,3 +1,4 @@
 com\divya\url_shortener\service\UrlServiceTest.class
 com\divya\url_shortener\integration\UrlIntegrationTest.class
+com\divya\url_shortener\performance\UrlPerformanceTest.class
 com\divya\url_shortener\UrlShortenerApplicationTests.class

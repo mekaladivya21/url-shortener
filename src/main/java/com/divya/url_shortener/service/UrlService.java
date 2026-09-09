@@ -14,6 +14,7 @@ import com.divya.url_shortener.exception.InvalidUrlException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +23,16 @@ import java.util.UUID;
 
 @Service
 public class UrlService {
+
+    private static final String CHARACTERS =
+            "abcdefghijklmnopqrstuvwxyz"
+                    + "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                    + "0123456789";
+    private static final int MAX_SHORT_CODE_ATTEMPTS = 10;
+    private static final int SHORT_CODE_LENGTH = 8;
+
+    private static final SecureRandom RANDOM =
+            new SecureRandom();
 
     private final UrlRepository urlRepository;
 
@@ -116,8 +127,9 @@ public class UrlService {
             );
         }
 
-        if (url.getExpiresAt() != null &&
-                url.getExpiresAt().isBefore(LocalDateTime.now())) {
+        if (url.getExpiresAt() != null
+                && !url.getExpiresAt()
+                .isAfter(LocalDateTime.now())) {
 
             throw new UrlExpiredException(
                     "Short URL has expired"
@@ -128,20 +140,49 @@ public class UrlService {
     }
 
 
+    private String generateShortCode() {
+
+        StringBuilder shortCode =
+                new StringBuilder(
+                        SHORT_CODE_LENGTH
+                );
+
+        for (int i = 0;
+             i < SHORT_CODE_LENGTH;
+             i++) {
+
+            int index =
+                    RANDOM.nextInt(
+                            CHARACTERS.length()
+                    );
+
+            shortCode.append(
+                    CHARACTERS.charAt(index)
+            );
+        }
+
+        return shortCode.toString();
+    }
     private String generateUniqueShortCode() {
 
-        String shortCode;
+        for (int attempt = 0;
+             attempt < MAX_SHORT_CODE_ATTEMPTS;
+             attempt++) {
 
-        do {
+            String shortCode =
+                    generateShortCode();
 
-            shortCode = UUID.randomUUID()
-                    .toString()
-                    .replace("-", "")
-                    .substring(0, 8);
+            if (!urlRepository.existsByShortCode(
+                    shortCode
+            )) {
 
-        } while (urlRepository.existsByShortCode(shortCode));
+                return shortCode;
+            }
+        }
 
-        return shortCode;
+        throw new IllegalStateException(
+                "Unable to generate a unique short code"
+        );
     }
     private void validateOriginalUrl(String originalUrl) {
 
